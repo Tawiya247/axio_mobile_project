@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  // Activer le mode SSL si nécessaire
+  // ssl = { rejectUnauthorized: false }
+}
+
+// Modèle utilisateur
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password_hash String
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  
+  // Relations
+  expenses     Expense[]
+  wallets      Wallet[]
+  goals        Goal[]
+  ai_logs      AILog[]
+  
+  // Index
+  @@index([email])
+}
+
+// Modèle portefeuille
+model Wallet {
+  id         String    @id @default(uuid())
+  user_id    String
+  name       String
+  type       String    // 'cash', 'bank', 'mobile_money', etc.
+  balance    Float     @default(0)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  
+  // Relations
+  user      User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  expenses  Expense[]
+  
+  // Index
+  @@index([user_id])
+}
+
+// Modèle dépense
+model Expense {
+  id          String    @id @default(uuid())
+  user_id     String
+  wallet_id   String
+  category    String
+  amount      Float
+  description String?
+  date        DateTime  @default(now())
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  
+  // Relations
+  user   User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  wallet Wallet @relation(fields: [wallet_id], references: [id], onDelete: Cascade)
+  
+  // Index
+  @@index([user_id, wallet_id, date])
+}
+
+// Modèle objectif
+model Goal {
+  id           String    @id @default(uuid())
+  user_id      String
+  name         String
+  description  String?
+  target_value Float
+  current_value Float    @default(0)
+  deadline     DateTime
+  is_completed Boolean   @default(false)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  
+  // Index
+  @@index([user_id, deadline])
+}
+
+// Modèle pour les logs d'IA
+model AILog {
+  id         String    @id @default(uuid())
+  user_id    String
+  type       String    // 'categorization', 'simulation', 'analysis', etc.
+  input      String    // Données d'entrée (peut être du JSON stringifié)
+  output     String    // Réponse de l'IA (peut être du JSON stringifié)
+  created_at DateTime  @default(now())
+  
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  
+  // Index
+  @@index([user_id, type, created_at])
+}

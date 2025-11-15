@@ -1,0 +1,29 @@
+targets:
+  $default:
+    builders:
+      injectable_generator:injectable_builder:
+        generate_for:
+          - lib/**.dart
+        options:
+          auto_register: true
+          prefer_relative_imports: true
+      injectable_generator:injectable_config_builder:
+        generate_for:
+          - lib/**.dart
+        options:
+          auto_register: true
+          prefer_relative_imports: true
+
+builders:
+  injectable_generator:injectable_builder:
+    generate_for:
+      - lib/**.dart
+    options:
+      auto_register: true
+      prefer_relative_imports: true
+  injectable_generator:injectable_config_builder:
+    generate_for:
+      - lib/**.dart
+    options:
+      auto_register: true
+      prefer_relative_imports: true

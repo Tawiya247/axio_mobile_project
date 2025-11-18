@@ -25,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
+  int _currentIndex = 0; // Index de l'onglet actif
 
   @override
   void dispose() {
@@ -476,9 +477,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                         initialValue: _selectedCategory,
                         onChanged: (value) {
-                          setState(() {
-                            _selectedCategory = value;
-                          });
+                          if (value != null) {
+                            setState(() {
+                              _selectedCategory = value;
+                            });
+                          }
                         },
                       ),
                       const SizedBox(height: 16),
@@ -542,6 +545,44 @@ class _HomeScreenState extends State<HomeScreen> {
         label: const Text('Ajouter une dépense'),
       ),
       bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) {
+          setState(() => _currentIndex = index);
+
+          // Gestion de la navigation en fonction de l'onglet sélectionné
+          switch (index) {
+            case 0: // Accueil
+              // Déjà sur la page d'accueil
+              break;
+            case 1: // Statistiques
+              GoRouter.of(context).pushNamed('statistics');
+              // Réinitialiser l'index à 0 après la navigation
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  setState(() => _currentIndex = 0);
+                }
+              });
+              break;
+            case 2: // Portefeuilles
+              GoRouter.of(context).pushNamed('wallets');
+              // Réinitialiser l'index à 0 après la navigation
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  setState(() => _currentIndex = 0);
+                }
+              });
+              break;
+            case 3: // Paramètres
+              GoRouter.of(context).pushNamed('settings');
+              // Réinitialiser l'index à 0 après la navigation
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  setState(() => _currentIndex = 0);
+                }
+              });
+              break;
+          }
+        },
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
